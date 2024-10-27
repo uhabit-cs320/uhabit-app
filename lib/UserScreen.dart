@@ -1,82 +1,76 @@
+import 'package:UHabit/services/mock_user_profile_service.dart';
+import 'package:UHabit/services/user_profile_service.dart';
 import 'package:flutter/material.dart';
 
 class UserScreen extends StatelessWidget {
-  final String userName;
-  final String userImage;
-  final String bio;
-  final Map<String, int> habits;
-
-  UserScreen({
-    this.userName = 'We Are Group 7',
-    this.userImage = 'https://re-mm-assets.s3.amazonaws.com/product_photo/20404/large_Poly_LightPink_7422up_1471501981.jpg', // Placeholder image URL
-    this.bio = 'This is the user bio that describes the user’s interests and activities.',
-    Map<String, int>? habits, // Make habits nullable
-  }) : this.habits = habits ?? const {
-    'Exercise': 5,
-    'Reading': 3,
-    'Meditation': 7,
-    'Cooking': 2,
-  };
-
+  final UserProfileService _userService = MockUserProfileService(); // Switch to ApiUserProfileService when ready
+  
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // User image
-            CircleAvatar(
-              radius: 60,
-              backgroundImage: NetworkImage(userImage),
-            ),
-            SizedBox(height: 16),
+    return FutureBuilder<UserProfile?>(
+      future: _userService.getCurrentUserProfile(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-            // User name
-            Text(
-              userName,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
 
-            // Username
-            Text(
-              '@asktehdevs',
-              style: TextStyle(fontSize: 16, color: Colors.lightBlueAccent),
-            ),
-            SizedBox(height: 16),
+        final userProfile = snapshot.data;
+        if (userProfile == null) {
+          return const Center(child: Text('No profile found'));
+        }
 
-            // User bio
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0),
-              child: Text(
-                bio,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14),
-              ),
+        return Scaffold(
+          body: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 60,
+                  backgroundImage: userProfile.photoUrl != null 
+                    ? NetworkImage(userProfile.photoUrl!)
+                    : null,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  userProfile.name,
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  userProfile.email,
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  userProfile.bio,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Habits',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                Expanded(
+                  child: ListView(
+                    children: userProfile.habits.entries.map((entry) {
+                      return ListTile(
+                        title: Text(entry.key),
+                        trailing: Text('${entry.value} days',
+                          style: const TextStyle(fontSize: 15, color: Colors.lightGreen)),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: 24),
-
-            // List of habits
-            Text(
-              'Habits',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            Expanded(
-              child: ListView(
-                children: habits.entries.map((entry) {
-                  return ListTile(
-                    title: Text(entry.key),
-                    trailing: Text('${entry.value} days',
-                        style: TextStyle(fontSize: 15, color: Colors.lightGreen)),
-                  );
-                }).toList(),
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

@@ -8,23 +8,41 @@ import 'HomeScreen.dart';
 import 'RecordScreen.dart';
 import 'FriendScreen.dart';
 import 'AppBar.dart';
+import 'services/auth_service.dart';
+import 'services/mock_user_profile_service.dart';
+import 'services/firebase_auth_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+  
+  final userService = MockUserProfileService();
+  final authService = FirebaseAuthService(userService);
 
-  runApp(MaterialApp(
-    home: SignUpScreen(),
-    debugShowCheckedModeBanner: false,
-  ));
+  runApp(MyApp(authService: authService));  // Changed this line to use MyApp
 }
 
 class MyApp extends StatelessWidget {
+  final AuthService authService;
+  
+  const MyApp({Key? key, required this.authService}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Screen(),
+      home: StreamBuilder<User?>(
+        stream: authService.authStateChanges,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          return snapshot.hasData 
+            ? Screen() 
+            : SignUpScreen(authService: authService);
+        },
+      ),
       debugShowCheckedModeBanner: false,
     );
   }
