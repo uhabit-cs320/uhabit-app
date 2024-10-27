@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'SettingsScreen.dart'; // Import the SettingsScreen
+import 'NotificationScreen.dart'; // Import the NotificationScreen
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -15,7 +17,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           fontSize: 20,
         ),
       ),
-      centerTitle: true,
       backgroundColor: Colors.white,
       elevation: 0,
       actions: [
@@ -28,17 +29,23 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: Icon(Icons.notifications, color: Colors.black),
           onPressed: () {
-            // Define the action for notifications icon
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => NotificationScreen()),
+            );
           },
         ),
         IconButton(
           icon: Icon(Icons.settings, color: Colors.black),
           onPressed: () {
-            // Define the action for settings icon
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SettingsScreen()),
+            );
           },
         ),
       ],
-      iconTheme: IconThemeData(color: Colors.black), // Color for any leading icons
+      iconTheme: IconThemeData(color: Colors.black),
     );
   }
 

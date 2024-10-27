@@ -10,9 +10,32 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final weeklyStats = {
     'activities': {'value': '12', 'delta': '1'},
-    'time': {'value': '14h 15m', 'delta': '1h 2m'},
-    'distance': {'value': '12.00 km', 'delta': '0.360 km'},
+    'completion': {'value': '87%', 'delta': '3.33%'},
+    'ranking': {'value': '2nd', 'delta': '0'}
   };
+
+  final List<Map<String, String>> posts = [
+    {
+      'name': 'Alice Johnson',
+      'message': 'Just completed a 5km run today! Feeling great!',
+      'date': '2 hours ago',
+    },
+    {
+      'name': 'Bob Smith',
+      'message': 'Achieved a new personal best for my streak! 30 days in a row!',
+      'date': '3 hours ago',
+    },
+    {
+      'name': 'Charlie Brown',
+      'message': 'Finished reading 2 books this week! Loving it!',
+      'date': '5 hours ago',
+    },
+    {
+      'name': 'Diana Prince',
+      'message': 'Drank 3 liters of water today! Staying hydrated!',
+      'date': '1 day ago',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildStatsRow(),
                 const SizedBox(height: 24),
                 _buildChallengesSection(),
+                const SizedBox(height: 24), // Add some space before the posts
+                _buildPostsSection(), // Add the posts section here
               ],
             ),
           ),
@@ -68,12 +93,12 @@ class _HomeScreenState extends State<HomeScreen> {
         _buildStatColumn('Activities',
             weeklyStats['activities']!['value']!,
             weeklyStats['activities']!['delta']!),
-        _buildStatColumn('Time',
-            weeklyStats['time']!['value']!,
-            weeklyStats['time']!['delta']!),
-        _buildStatColumn('Distance',
-            weeklyStats['distance']!['value']!,
-            weeklyStats['distance']!['delta']!),
+        _buildStatColumn('Completion Rate',
+            weeklyStats['completion']!['value']!,
+            weeklyStats['completion']!['delta']!),
+        _buildStatColumn('Ranking',
+            weeklyStats['ranking']!['value']!,
+            weeklyStats['ranking']!['delta']!),
       ],
     );
   }
@@ -119,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         const Text(
-          'Make accountability a little easier, more fun\nand earn rewards!',
+          'Make accountability a little easier and much more fun!',
           style: TextStyle(
             color: Colors.grey,
             fontSize: 14,
@@ -176,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
                       Text(
-                        'Vuori x charity: water',
+                        'WHO x Awkafina: Stay Hyrdated',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -184,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        'Help provide 3.5 million liters of clean water to people around the world!',
+                        '2 liters a day keeps the doctor away',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
@@ -243,9 +268,66 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color:Colors.white,
+                    color: Colors.white,
                   ),
                 ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // New Method to Build the Posts Section
+  Widget _buildPostsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'For You',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+        ...posts.map((post) => _buildPostCard(post)).toList(),
+      ],
+    );
+  }
+
+  // New Method to Build Individual Post Cards
+  Widget _buildPostCard(Map<String, String> post) {
+    return Card(
+      elevation: 1,
+      margin: const EdgeInsets.only(bottom: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              post['name']!,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              post['message']!,
+              style: const TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              post['date']!,
+              style: const TextStyle(
+                color: Colors.grey,
+                fontSize: 12,
               ),
             ),
           ],

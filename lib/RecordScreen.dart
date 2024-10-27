@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'AppBar.dart';
+import 'AddRecordScreen.dart'; // Import the AddRecordScreen
 
 class RecordScreen extends StatelessWidget {
   @override
@@ -76,13 +77,24 @@ class RecordScreen extends StatelessWidget {
                     child: Center(child: Text('Weekly Progress Chart Placeholder')),
                   ),
                   SizedBox(height: 16),
-
                 ],
               ),
             ),
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Navigate to AddRecordScreen
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AddRecordScreen()),
+          );
+        },
+        backgroundColor: Colors.green, // Green background color
+        child: Icon(Icons.add, color: Colors.white), // White plus icon
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat, // Center the button at the bottom
     );
   }
 }

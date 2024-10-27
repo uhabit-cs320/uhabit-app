@@ -1,84 +1,77 @@
 import 'package:flutter/material.dart';
 
 class UserScreen extends StatelessWidget {
+  final String userName;
+  final String userImage;
+  final String bio;
+  final Map<String, int> habits;
+
+  UserScreen({
+    this.userName = 'We Are Group 7',
+    this.userImage = 'https://re-mm-assets.s3.amazonaws.com/product_photo/20404/large_Poly_LightPink_7422up_1471501981.jpg', // Placeholder image URL
+    this.bio = 'This is the user bio that describes the user’s interests and activities.',
+    Map<String, int>? habits, // Make habits nullable
+  }) : this.habits = habits ?? const {
+    'Exercise': 5,
+    'Reading': 3,
+    'Meditation': 7,
+    'Cooking': 2,
+  };
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            DefaultTabController(
-              length: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TabBar(
-                    labelColor: Colors.lightGreen,
-                    unselectedLabelColor: Colors.grey,
-                    indicatorColor: Colors.lightGreen,
-                    tabs: [
-                      Tab(text: 'Progress'),
-                      Tab(text: 'Activities'),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: () {},
-                    icon: Icon(Icons.directions_run, color: Colors.lightGreen),
-                    label: Text('Run', style: TextStyle(color: Colors.lightGreen)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      side: BorderSide(color: Colors.lightGreen),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'This week',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        children: [
-                          Text('Distance', style: TextStyle(fontSize: 14)),
-                          SizedBox(height: 4),
-                          Text('0 km', style: TextStyle(fontSize: 16)),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          Text('Time', style: TextStyle(fontSize: 14)),
-                          SizedBox(height: 4),
-                          Text('0m', style: TextStyle(fontSize: 16)),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          Text('Elev Gain', style: TextStyle(fontSize: 14)),
-                          SizedBox(height: 4),
-                          Text('0 m', style: TextStyle(fontSize: 16)),
-                        ],
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  Container(
-                    height: 150,
-                    color: Colors.grey[200],
-                    child: Center(child: Text('Weekly Progress Chart Placeholder')),
-                  ),
-                  SizedBox(height: 16),
-                  Divider(),
-                  SizedBox(height: 16),
+            // User image
+            CircleAvatar(
+              radius: 60,
+              backgroundImage: NetworkImage(userImage),
+            ),
+            SizedBox(height: 16),
 
-                ],
+            // User name
+            Text(
+              userName,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+
+            // Username
+            Text(
+              '@asktehdevs',
+              style: TextStyle(fontSize: 16, color: Colors.lightBlueAccent),
+            ),
+            SizedBox(height: 16),
+
+            // User bio
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32.0),
+              child: Text(
+                bio,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14),
+              ),
+            ),
+            SizedBox(height: 24),
+
+            // List of habits
+            Text(
+              'Habits',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            Expanded(
+              child: ListView(
+                children: habits.entries.map((entry) {
+                  return ListTile(
+                    title: Text(entry.key),
+                    trailing: Text('${entry.value} days',
+                        style: TextStyle(fontSize: 15, color: Colors.lightGreen)),
+                  );
+                }).toList(),
               ),
             ),
           ],
