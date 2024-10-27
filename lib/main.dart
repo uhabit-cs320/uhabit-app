@@ -1,4 +1,7 @@
+import 'package:UHabit/SignUpScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'UserScreen.dart';
 import 'CalendarScreen.dart';
 import 'HomeScreen.dart';
@@ -6,8 +9,15 @@ import 'RecordScreen.dart';
 import 'FriendScreen.dart';
 import 'AppBar.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+
+  runApp(MaterialApp(
+    home: SignUpScreen(),
+    debugShowCheckedModeBanner: false,
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -72,5 +82,6 @@ class _ScreenState extends State<Screen> {
     );
   }
 }
+
 
 
