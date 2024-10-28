@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'UserScreen.dart';
 import 'CalendarScreen.dart';
 import 'HomeScreen.dart';
-import 'RecordScreen.dart';
 import 'FriendScreen.dart';
 import 'AppBar.dart';
 
@@ -30,7 +29,7 @@ class Screen extends StatefulWidget {
 class _ScreenState extends State<Screen> {
   int _selectedIndex = 0;
   String _screenTitle = 'Home';
-  var _screenTitles = ['Home', 'Calendar', 'Record', 'Friends', 'You'];
+  var _screenTitles = ['Home', 'Calendar', 'Friends', 'You'];
 
   // This method handles updating the selected index when a bottom navigation item is tapped.
   void _onItemTapped(int index) {
@@ -45,7 +44,6 @@ class _ScreenState extends State<Screen> {
   final List<Widget> _pages = [
     HomeScreen(),
     CalendarScreen(),
-    RecordScreen(),
     FriendScreen(),
     UserScreen(),
   ];
@@ -63,7 +61,6 @@ class _ScreenState extends State<Screen> {
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.calendar_month_rounded), label: 'Calendar'),
-          BottomNavigationBarItem(icon: Icon(Icons.add_task), label: 'Record'),
           BottomNavigationBarItem(icon: Icon(Icons.all_inclusive), label: 'Friends'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'You'),
         ],
@@ -72,5 +69,3 @@ class _ScreenState extends State<Screen> {
     );
   }
 }
-
-
