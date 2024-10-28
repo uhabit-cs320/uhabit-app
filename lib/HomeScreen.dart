@@ -349,7 +349,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
                       Text(
-                        'Stay Hyrdated',
+                        'Stay Hydrated',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
