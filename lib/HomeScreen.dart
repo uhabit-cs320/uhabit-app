@@ -8,143 +8,303 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final weeklyStats = {
-    'activities': {'value': '12', 'delta': '1'},
-    'completion': {'value': '87%', 'delta': '3.33%'},
-    'ranking': {'value': '2nd', 'delta': '0'}
-  };
+  // Sample habit data to change later.
+  List<Map<String, dynamic>> habits = [
+    {
+      'name': 'Workout',
+      'days': [true, false, true, false, false, false, false],
+      'icon': Icons.fitness_center,
+    },
+    {
+      'name': 'Brush Teeth',
+      'days': [true, false, false, false, false, false, false],
+      'icon': Icons.bathroom,
+    },
+  ];
 
+  final List<String> weekDays = ['M', 'T', 'W', 'Th', 'F', 'S', 'S'];
+  final TextEditingController _habitNameController = TextEditingController();
   final List<Map<String, String>> posts = [
     {
       'name': 'Alice Johnson',
-      'message': 'Just completed a 5km run today! Feeling great!',
+      'message': 'Completed running habit!',
       'date': '2 hours ago',
     },
     {
       'name': 'Bob Smith',
-      'message': 'Achieved a new personal best for my streak! 30 days in a row!',
+      'message': 'Achieved a habit streak of 30 days!',
       'date': '3 hours ago',
     },
     {
       'name': 'Charlie Brown',
-      'message': 'Finished reading 2 books this week! Loving it!',
+      'message': 'Completed reading books habits 2 times this week!',
       'date': '5 hours ago',
     },
     {
       'name': 'Diana Prince',
-      'message': 'Drank 3 liters of water today! Staying hydrated!',
+      'message': 'Completed drink 3 liters of water habit!',
       'date': '1 day ago',
     },
   ];
 
   @override
+  void dispose() {
+    _habitNameController.dispose();
+    super.dispose();
+  }
+
+  void _addNewHabit(String name) {
+    if (name.isNotEmpty) {
+      setState(() {
+        habits.add({
+          'name': name,
+          'days': List.generate(7, (_) => false),
+          'icon': Icons.star, // Default icon
+        });
+      });
+    }
+  }
+
+  Future<void> _showAddHabitDialog() async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Add New Habit'),
+          content: TextField(
+            controller: _habitNameController,
+            decoration: const InputDecoration(
+              hintText: 'Enter habit name',
+            ),
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _habitNameController.clear();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                _addNewHabit(_habitNameController.text);
+                Navigator.pop(context);
+                _habitNameController.clear();
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHabitTracker(),
+                  const SizedBox(height: 24),
+                  _buildChallengesSection(),
+                  const SizedBox(height: 24),
+                  _buildPostsSection(),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddHabitDialog,
+        backgroundColor: Colors.green[400],
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _buildHabitTracker() {
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Today is Wednesday',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Days of week header
+            Row(
               children: [
-                _buildSnapshotHeader(),
-                const SizedBox(height: 16),
-                _buildStatsRow(),
-                const SizedBox(height: 24),
-                _buildChallengesSection(),
-                const SizedBox(height: 24), // Add some space before the posts
-                _buildPostsSection(), // Add the posts section here
+                const SizedBox(width: 100), // Space for habit name
+                ...List.generate(7, (index) {
+                  return Expanded(
+                    child: Center(
+                      child: Text(
+                        weekDays[index],
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
+            const SizedBox(height: 8),
+            // Habit rows
+            ...habits.map((habit) => _buildHabitRow(habit)),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHabitRow(Map<String, dynamic> habit) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 100,
+            child: Row(
+              children: [
+                Icon(habit['icon'], color: Colors.green[400]),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    habit['name'],
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSnapshotHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          'Your Weekly Snapshot',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        TextButton(
-          onPressed: () {},
-          child: const Text(
-            'See More',
-            style: TextStyle(
-              color: Colors.lightGreen,
+          ...List.generate(
+            7,
+            (index) => Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    habit['days'][index] = !habit['days'][index];
+                  });
+                },
+                child: Container(
+                  margin: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 1,
+                    ),
+                    color:
+                        habit['days'][index] ? Colors.green[400] : Colors.white,
+                  ),
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: habit['days'][index]
+                        ? const Icon(
+                            Icons.check,
+                            color: Colors.white,
+                            size: 16,
+                          )
+                        : null,
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildStatsRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        _buildStatColumn('Activities',
-            weeklyStats['activities']!['value']!,
-            weeklyStats['activities']!['delta']!),
-        _buildStatColumn('Completion Rate',
-            weeklyStats['completion']!['value']!,
-            weeklyStats['completion']!['delta']!),
-        _buildStatColumn('Ranking',
-            weeklyStats['ranking']!['value']!,
-            weeklyStats['ranking']!['delta']!),
-      ],
+  // Add Habit Button
+  Widget _buildAddHabitButton() {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Add Habit',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              decoration: InputDecoration(
+                hintText: 'Habit Name',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text('#/week'),
+                const SizedBox(width: 16),
+                const Text('Alert'),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Text('Color: Stuff (Feature)'),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green[400],
+                minimumSize: const Size(double.infinity, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text('Add Habit'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildStatColumn(String label, String value, String subValue) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.grey,
-            fontSize: 14,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          '▼ $subValue',
-          style: const TextStyle(
-            color: Colors.grey,
-            fontSize: 12,
-          ),
-        ),
-      ],
-    );
-  }
-
+// Keep the existing methods for challenges and posts sections
   Widget _buildChallengesSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Suggested Challenges',
+          'Suggested Habits',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
         const Text(
-          'Make accountability a little easier and much more fun!',
+          'Make accountability a little easier ;D',
           style: TextStyle(
             color: Colors.grey,
             fontSize: 14,
@@ -154,18 +314,6 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 16),
         _buildChallengeCard(),
         const SizedBox(height: 16),
-        Center(
-          child: TextButton(
-            onPressed: () {},
-            child: const Text(
-              'Explore All Challenges',
-              style: TextStyle(
-                color: Colors.green,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ),
       ],
     );
   }
@@ -201,70 +349,33 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
                       Text(
-                        'WHO x Awkafina: Stay Hyrdated',
+                        'Stay Hydrated',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       SizedBox(height: 4),
-                      Text(
-                        '2 liters a day keeps the doctor away',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
                     ],
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.amber[100],
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text(
-                    'Digital Trophy',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.green,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    'More than 73,000 athletes have already joined',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.lightGreen,
+                  backgroundColor: Colors.green[400],
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
                 child: const Text(
-                  'Join Challenge',
+                  'Join Habit',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -278,6 +389,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
 
   // New Method to Build the Posts Section
   Widget _buildPostsSection() {
