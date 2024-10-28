@@ -1,18 +1,31 @@
 import 'package:flutter/material.dart';
 
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
+
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
+//hi
 
 class _HomeScreenState extends State<HomeScreen> {
-  final weeklyStats = {
-    'activities': {'value': '12', 'delta': '1'},
-    'completion': {'value': '87%', 'delta': '3.33%'},
-    'ranking': {'value': '2nd', 'delta': '0'}
-  };
+  // Sample habit data to change later.
+  final List<Map<String, dynamic>> habits = [
+    {
+      'name': 'Workout',
+      'days': [true, false, true, false, false, false, false],
+      'icon': Icons.fitness_center,
+    },
+    {
+      'name': 'Brush Teeth',
+      'days': [true, false, false, false, false, false, false],
+      'icon': Icons.bathroom,
+    },
+  ];
+
+  final List<String> weekDays = ['M', 'T', 'W', 'Th', 'F', 'S', 'S'];
 
   final List<Map<String, String>> posts = [
     {
@@ -22,7 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
     },
     {
       'name': 'Bob Smith',
-      'message': 'Achieved a new personal best for my streak! 30 days in a row!',
+      'message':
+      'Achieved a new personal best for my streak! 30 days in a row!',
       'date': '3 hours ago',
     },
     {
@@ -37,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
     },
   ];
 
+
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
@@ -47,13 +62,11 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildSnapshotHeader(),
-                const SizedBox(height: 16),
-                _buildStatsRow(),
+                _buildHabitTracker(),
                 const SizedBox(height: 24),
                 _buildChallengesSection(),
-                const SizedBox(height: 24), // Add some space before the posts
-                _buildPostsSection(), // Add the posts section here
+                const SizedBox(height: 24),
+                _buildPostsSection(),
               ],
             ),
           ),
@@ -62,76 +75,168 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSnapshotHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          'Your Weekly Snapshot',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+  Widget _buildHabitTracker() {
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Today is Wednesday',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Days of week header
+            Row(
+              children: [
+                const SizedBox(width: 80), // Space for habit name
+                ...List.generate(7, (index) {
+                  return Expanded(
+                    child: Center(
+                      child: Text(
+                        weekDays[index],
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
+            const SizedBox(height: 8),
+            // Habit rows
+            ...habits.map((habit) => _buildHabitRow(habit)),
+            const SizedBox(height: 16),
+          ],
         ),
-        TextButton(
-          onPressed: () {},
-          child: const Text(
-            'See More',
-            style: TextStyle(
-              color: Colors.lightGreen,
+      ),
+    );
+  }
+
+  Widget _buildHabitRow(Map<String, dynamic> habit) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 80,
+            child: Row(
+              children: [
+                Icon(habit['icon']),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    habit['name'],
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-      ],
+          ...List.generate(
+            7,
+                (index) => Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    habit['days'][index] = !habit['days'][index];
+                  });
+                },
+                child: Container(
+                  margin: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 1,
+                    ),
+                    color: habit['days'][index] ? Colors.green : Colors.white,
+                  ),
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: habit['days'][index]
+                        ? const Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 16,
+                    )
+                        : null,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildStatsRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        _buildStatColumn('Activities',
-            weeklyStats['activities']!['value']!,
-            weeklyStats['activities']!['delta']!),
-        _buildStatColumn('Completion Rate',
-            weeklyStats['completion']!['value']!,
-            weeklyStats['completion']!['delta']!),
-        _buildStatColumn('Ranking',
-            weeklyStats['ranking']!['value']!,
-            weeklyStats['ranking']!['delta']!),
-      ],
+
+  // Add Habit Button
+  Widget _buildAddHabitButton() {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Add Habit',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              decoration: InputDecoration(
+                hintText: 'Habit Name',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text('#/week'),
+                const SizedBox(width: 16),
+                const Text('Alert'),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Text('Color: Stuff (Feature)'),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                minimumSize: const Size(double.infinity, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text('Add Habit'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildStatColumn(String label, String value, String subValue) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.grey,
-            fontSize: 14,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          '▼ $subValue',
-          style: const TextStyle(
-            color: Colors.grey,
-            fontSize: 12,
-          ),
-        ),
-      ],
-    );
-  }
-
+// Keep the existing methods for challenges and posts sections
   Widget _buildChallengesSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,6 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
+
 
   Widget _buildChallengeCard() {
     return Card(
@@ -224,7 +330,8 @@ class _HomeScreenState extends State<HomeScreen> {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.amber[100],
                     borderRadius: BorderRadius.circular(4),
@@ -279,6 +386,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+
   // New Method to Build the Posts Section
   Widget _buildPostsSection() {
     return Column(
@@ -296,6 +404,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
+
 
   // New Method to Build Individual Post Cards
   Widget _buildPostCard(Map<String, String> post) {
