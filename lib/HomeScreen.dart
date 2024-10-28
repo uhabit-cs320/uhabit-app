@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
-
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
-//hi
 
 class _HomeScreenState extends State<HomeScreen> {
   // Sample habit data to change later.
-  final List<Map<String, dynamic>> habits = [
+  List<Map<String, dynamic>> habits = [
     {
       'name': 'Workout',
       'days': [true, false, true, false, false, false, false],
@@ -26,52 +23,111 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   final List<String> weekDays = ['M', 'T', 'W', 'Th', 'F', 'S', 'S'];
-
+  final TextEditingController _habitNameController = TextEditingController();
   final List<Map<String, String>> posts = [
     {
       'name': 'Alice Johnson',
-      'message': 'Just completed a 5km run today! Feeling great!',
+      'message': 'Completed running habit!',
       'date': '2 hours ago',
     },
     {
       'name': 'Bob Smith',
       'message':
-      'Achieved a new personal best for my streak! 30 days in a row!',
+          'Achieved a habit streak of 30 days!',
       'date': '3 hours ago',
     },
     {
       'name': 'Charlie Brown',
-      'message': 'Finished reading 2 books this week! Loving it!',
+      'message': 'Completed reading books habits 2 times this week!',
       'date': '5 hours ago',
     },
     {
       'name': 'Diana Prince',
-      'message': 'Drank 3 liters of water today! Staying hydrated!',
+      'message': 'Completed drink 3 liters of water habit!',
       'date': '1 day ago',
     },
   ];
 
+  @override
+  void dispose() {
+    _habitNameController.dispose();
+    super.dispose();
+  }
+
+  void _addNewHabit(String name) {
+    if (name.isNotEmpty) {
+      setState(() {
+        habits.add({
+          'name': name,
+          'days': List.generate(7, (_) => false),
+          'icon': Icons.star, // Default icon
+        });
+      });
+    }
+  }
+
+  Future<void> _showAddHabitDialog() async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Add New Habit'),
+          content: TextField(
+            controller: _habitNameController,
+            decoration: const InputDecoration(
+              hintText: 'Enter habit name',
+            ),
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _habitNameController.clear();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                _addNewHabit(_habitNameController.text);
+                Navigator.pop(context);
+                _habitNameController.clear();
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHabitTracker(),
-                const SizedBox(height: 24),
-                _buildChallengesSection(),
-                const SizedBox(height: 24),
-                _buildPostsSection(),
-              ],
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHabitTracker(),
+                  const SizedBox(height: 24),
+                  _buildChallengesSection(),
+                  const SizedBox(height: 24),
+                  _buildPostsSection(),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddHabitDialog,
+        backgroundColor: Colors.green,
+        child: const Icon(Icons.add),
+      ),
     );
   }
 
@@ -144,7 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           ...List.generate(
             7,
-                (index) => Expanded(
+            (index) => Expanded(
               child: GestureDetector(
                 onTap: () {
                   setState(() {
@@ -165,10 +221,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     aspectRatio: 1,
                     child: habit['days'][index]
                         ? const Icon(
-                      Icons.check,
-                      color: Colors.white,
-                      size: 16,
-                    )
+                            Icons.check,
+                            color: Colors.white,
+                            size: 16,
+                          )
                         : null,
                   ),
                 ),
@@ -179,7 +235,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 
   // Add Habit Button
   Widget _buildAddHabitButton() {
@@ -242,14 +297,14 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Suggested Challenges',
+          'Suggested Habits',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
         const Text(
-          'Make accountability a little easier and much more fun!',
+          'Make accountability a little easier ;D',
           style: TextStyle(
             color: Colors.grey,
             fontSize: 14,
@@ -259,22 +314,9 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 16),
         _buildChallengeCard(),
         const SizedBox(height: 16),
-        Center(
-          child: TextButton(
-            onPressed: () {},
-            child: const Text(
-              'Explore All Challenges',
-              style: TextStyle(
-                color: Colors.green,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ),
       ],
     );
   }
-
 
   Widget _buildChallengeCard() {
     return Card(
@@ -307,57 +349,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
                       Text(
-                        'WHO x Awkafina: Stay Hyrdated',
+                        'Stay Hyrdated',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       SizedBox(height: 4),
-                      Text(
-                        '2 liters a day keeps the doctor away',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
                     ],
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                Container(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.amber[100],
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text(
-                    'Digital Trophy',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.green,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    'More than 73,000 athletes have already joined',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
@@ -371,7 +375,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 child: const Text(
-                  'Join Challenge',
+                  'Join Habit',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -385,7 +389,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 
   // New Method to Build the Posts Section
   Widget _buildPostsSection() {
@@ -404,7 +407,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
-
 
   // New Method to Build Individual Post Cards
   Widget _buildPostCard(Map<String, String> post) {
@@ -445,3 +447,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
