@@ -32,8 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
     },
     {
       'name': 'Bob Smith',
-      'message':
-          'Achieved a habit streak of 30 days!',
+      'message': 'Achieved a habit streak of 30 days!',
       'date': '3 hours ago',
     },
     {
@@ -125,8 +124,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddHabitDialog,
-        backgroundColor: Colors.green,
-        child: const Icon(Icons.add),
+        backgroundColor: Colors.green[400],
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -153,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // Days of week header
             Row(
               children: [
-                const SizedBox(width: 80), // Space for habit name
+                const SizedBox(width: 100), // Space for habit name
                 ...List.generate(7, (index) {
                   return Expanded(
                     child: Center(
@@ -184,10 +183,10 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Row(
         children: [
           SizedBox(
-            width: 80,
+            width: 100,
             child: Row(
               children: [
-                Icon(habit['icon']),
+                Icon(habit['icon'], color: Colors.green[400]),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
@@ -215,7 +214,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.grey,
                       width: 1,
                     ),
-                    color: habit['days'][index] ? Colors.green : Colors.white,
+                    color:
+                        habit['days'][index] ? Colors.green[400] : Colors.white,
                   ),
                   child: AspectRatio(
                     aspectRatio: 1,
@@ -277,7 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
+                backgroundColor: Colors.green[400],
                 minimumSize: const Size(double.infinity, 48),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -368,7 +368,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.lightGreen,
+                  backgroundColor: Colors.green[400],
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -389,6 +389,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
 
   // New Method to Build the Posts Section
   Widget _buildPostsSection() {
@@ -447,4 +448,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
