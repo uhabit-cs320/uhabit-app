@@ -1,4 +1,8 @@
+import 'package:UHabit/models/habit.dart';
+import 'package:UHabit/models/habit_record.dart';
+import 'package:UHabit/services/habit_service.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -8,6 +12,67 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final HabitService _habitService = HabitService();
+  List<HabitRecord> _habitRecords = [];
+  Map<int, Habit> _habits = {};
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadHabits();
+  }
+
+  Future<void> _loadHabits() async {
+    try {
+      setState(() => _isLoading = true);
+      print("Loading habits");
+      final habits = await _habitService.getActiveHabits();
+      setState(() {
+        _habitRecords = habits;
+        _isLoading = false;
+      });
+
+      // Load habits
+      final publicHabits = await _habitService.getPublicHabits();
+      setState(() {
+        _habits = {for (var habit in publicHabits) habit.id: habit};
+      }); 
+
+      print("Public habits: ${_habits.values.map((habit) => habit.toJson()).join('\n')}");
+
+      // Load all private habits based on ids
+      _habitRecords.forEach((habitTracker) async {
+        if (!_habits.containsKey(habitTracker.habitId)) {
+          final habit = await _habitService.getHabit(habitTracker.habitId);
+          if (habit != null) {
+            print("Adding habit: ${habit.name}");
+            _habits[habit.id] = habit;
+          }
+        }
+      });
+
+      // Print the habits in a readable format
+      print("Habits: ${_habitRecords.map((habit) => habit.toJson()).join('\n')}");
+      print("Habits length: ${_habitRecords.length}");
+
+    } catch (e) {
+      print('Error loading habits: $e');
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _toggleHabit(int habitId) async {
+    try {
+      final updatedRecord = await _habitService.submitHabitRecord(habitId);
+      if (updatedRecord != null) {
+        await _loadHabits(); // Reload habits to get updated state
+      }
+    } catch (e) {
+      print('Error toggling habit: $e');
+    }
+  }
+
   // Sample habit data to change later.
   List<Map<String, dynamic>> habits = [
     {
@@ -131,6 +196,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHabitTracker() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Card(
       elevation: 1,
       shape: RoundedRectangleBorder(
@@ -141,23 +210,23 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Today is Wednesday',
-              style: TextStyle(
+            Text(
+              'Today is ${DateFormat('EEEE').format(DateTime.now())}',
+              style: const TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
               ),
             ),
             const SizedBox(height: 16),
-            // Days of week header
             Row(
               children: [
-                const SizedBox(width: 100), // Space for habit name
+                const SizedBox(width: 100),
                 ...List.generate(7, (index) {
+                  final date = DateTime.now().subtract(Duration(days: 6 - index));
                   return Expanded(
                     child: Center(
                       child: Text(
-                        weekDays[index],
+                        DateFormat('E').format(date)[0],
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
@@ -168,16 +237,22 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             const SizedBox(height: 8),
-            // Habit rows
-            ...habits.map((habit) => _buildHabitRow(habit)),
-            const SizedBox(height: 16),
+            ..._habitRecords.map((record) => _buildHabitRow(record)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHabitRow(Map<String, dynamic> habit) {
+  Widget _buildHabitRow(HabitRecord record) {
+    final habit = _habits[record.habitId];
+    print("Habit: ${habit?.toJson()}");
+    if (habit == null) return const SizedBox.shrink();
+
+    final today = DateTime.now();
+    final weekDays = List.generate(7, (index) => 
+      today.subtract(Duration(days: 6 - index)));
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -186,25 +261,26 @@ class _HomeScreenState extends State<HomeScreen> {
             width: 100,
             child: Row(
               children: [
-                Icon(habit['icon'], color: Colors.green[400]),
+                Icon(Icons.check_circle_outline, color: Colors.green[400]),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
-                    habit['name'],
+                    habit.name,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
             ),
           ),
-          ...List.generate(
-            7,
-            (index) => Expanded(
+          ...weekDays.map((date) {
+            final isCompleted = record.completedDates
+                .any((d) => DateUtils.isSameDay(d, date));
+            return Expanded(
               child: GestureDetector(
                 onTap: () {
-                  setState(() {
-                    habit['days'][index] = !habit['days'][index];
-                  });
+                  if (DateUtils.isSameDay(date, today)) {
+                    _toggleHabit(record.habitId);
+                  }
                 },
                 child: Container(
                   margin: const EdgeInsets.all(2),
@@ -214,12 +290,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.grey,
                       width: 1,
                     ),
-                    color:
-                        habit['days'][index] ? Colors.green[400] : Colors.white,
+                    color: isCompleted 
+                      ? Colors.green[400]
+                      : DateUtils.isSameDay(date, today) 
+                        ? Colors.white
+                        : Colors.grey[200],
                   ),
                   child: AspectRatio(
                     aspectRatio: 1,
-                    child: habit['days'][index]
+                    child: isCompleted
                         ? const Icon(
                             Icons.check,
                             color: Colors.white,
@@ -229,8 +308,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-            ),
-          ),
+            );
+          }).toList(),
         ],
       ),
     );

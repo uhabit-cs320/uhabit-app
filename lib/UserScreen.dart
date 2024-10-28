@@ -1,14 +1,16 @@
+import 'package:UHabit/services/health_service.dart';
 import 'package:UHabit/services/mock_user_profile_service.dart';
 import 'package:UHabit/services/user_profile_service.dart';
 import 'package:flutter/material.dart';
 
 class UserScreen extends StatelessWidget {
   final UserProfileService _userService = MockUserProfileService(); // Switch to ApiUserProfileService when ready
+  final HealthService _healthService = HealthService();
   
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<UserProfile?>(
-      future: _userService.getCurrentUserProfile(),
+    return FutureBuilder<List<Object?>>(
+      future: Future.wait([_userService.getCurrentUserProfile(), _healthService.checkHealth()]),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -18,10 +20,17 @@ class UserScreen extends StatelessWidget {
           return Center(child: Text('Error: ${snapshot.error}'));
         }
 
-        final userProfile = snapshot.data;
+        final userProfile = snapshot.data?[0] as UserProfile?;
+        final healthCheck = snapshot.data?[1] as bool?;
+
+        if (healthCheck == false) {
+          return const Center(child: Text('Server is not healthy'));
+        }
+
         if (userProfile == null) {
           return const Center(child: Text('No profile found'));
         }
+
 
         return Scaffold(
           body: Padding(

@@ -34,9 +34,12 @@ class MyApp extends StatelessWidget {
       home: StreamBuilder<User?>(
         stream: authService.authStateChanges,
         builder: (context, snapshot) {
+          print('StreamBuilder: $snapshot');
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
+
+          print('Snapshot hasData: ${snapshot.hasData}');
           
           return snapshot.hasData 
             ? Screen() 
