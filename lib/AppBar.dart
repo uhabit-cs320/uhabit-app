@@ -21,13 +21,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       actions: [
         IconButton(
-          icon: Icon(Icons.chat, color: Colors.black),
-          onPressed: () {
-            // Define the action for chat icon
-          },
-        ),
-        IconButton(
-          icon: Icon(Icons.notifications, color: Colors.black),
+          icon: Icon(Icons.notifications, color: Colors.green[400]),
           onPressed: () {
             Navigator.push(
               context,
@@ -35,19 +29,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             );
           },
         ),
-        IconButton(
-          icon: Icon(Icons.settings, color: Colors.black),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => SettingsScreen()),
-            );
-          },
-        ),
       ],
-      iconTheme: IconThemeData(color: Colors.black),
+      iconTheme: IconThemeData(color: Colors.green[400]),
     );
   }
+
+  @override
+  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+}
+
 
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
