@@ -27,6 +27,18 @@ class _FriendScreenState extends State<FriendScreen> {
     {'name': 'Mr. Treehari'}
   ];
 
+  void showSnackbar(BuildContext context, String message, Color color) {
+    final snackBar = SnackBar(
+      content: Text(
+        message,
+        style: TextStyle(color: Colors.black),
+      ),
+      backgroundColor: color,
+      duration: Duration(seconds: 2),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -77,13 +89,30 @@ class _FriendScreenState extends State<FriendScreen> {
                     IconButton(
                       icon: Icon(Icons.check, color: Colors.green),
                       onPressed: () {
-                        // Handle accept friend request
+                        setState(() {
+                          // Add the accepted friend to the friends list
+                          friends.add({'name': request});
+                          // Remove from friend requests
+                          friendRequests.remove(request);
+                        });
+                        showSnackbar(
+                          context,
+                          'Accepted friend request',
+                          Colors.lightGreen,
+                        );
                       },
                     ),
                     IconButton(
                       icon: Icon(Icons.close, color: Colors.red),
                       onPressed: () {
-                        // Handle decline friend request
+                        setState(() {
+                          friendRequests.remove(request);
+                        });
+                        showSnackbar(
+                          context,
+                          'Rejected friend request',
+                          Colors.redAccent,
+                        );
                       },
                     ),
                   ],
@@ -120,13 +149,31 @@ class _FriendScreenState extends State<FriendScreen> {
                       Icon(
                         Icons.person,
                         size: 50,
-                        color: Colors.grey,
+                        color: Colors.black,
                       ),
                       SizedBox(height: 8),
                       Text(
                         user['name']!,
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            suggestedUsers.removeAt(index);
+                          });
+                          showSnackbar(
+                            context,
+                            'Friend request sent to ${user['name']}',
+                            Colors.tealAccent,
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.lightGreenAccent, // Background color
+                        ),
+                        child: Text('Add Friend',
+                            style: TextStyle(color: Colors.black)),
                       ),
                     ],
                   ),

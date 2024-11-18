@@ -20,16 +20,20 @@ class NotificationScreen extends StatelessWidget {
         child: ListView(
           children: [
             ListTile(
-              title: Text('Notification 1'),
-              subtitle: Text('You have a new message.'),
+              title: Text('Friend Request!'),
+              subtitle: Text('Gordon Ramsay sent you a friend request'),
             ),
             ListTile(
-              title: Text('Notification 2'),
-              subtitle: Text('Your friend has sent a friend request.'),
+              title: Text('Request accepted!'),
+              subtitle: Text('You are now friend with Mr. Treehari'),
             ),
             ListTile(
-              title: Text('Notification 3'),
-              subtitle: Text('You completed your workout!'),
+              title: Text('Friend Request!'),
+              subtitle: Text('Ronaldo Nazario sent you a friend request!'),
+            ),
+            ListTile(
+              title: Text('New challenge!'),
+              subtitle: Text('Trung Dang has challenged you to a new habit: Drinking Water!'),
             ),
             // Add more notifications as needed
           ],

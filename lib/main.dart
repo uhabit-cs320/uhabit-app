@@ -8,6 +8,7 @@ import 'CalendarScreen.dart';
 import 'HomeScreen.dart';
 import 'FriendScreen.dart';
 import 'AppBar.dart';
+import 'SplashScreen.dart';
 import 'services/auth_service.dart';
 import 'services/mock_user_profile_service.dart';
 import 'services/firebase_auth_service.dart';
@@ -43,8 +44,10 @@ class MyApp extends StatelessWidget {
           
           return snapshot.hasData 
             ? Screen() 
-            : SignUpScreen(authService: authService);
+            // : SignUpScreen(authService: authService); #TODO: uncomment this
+          : Screen();
         },
+
       ),
       debugShowCheckedModeBanner: false,
     );
