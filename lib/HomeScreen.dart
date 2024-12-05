@@ -11,11 +11,12 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   final HabitService _habitService = HabitService();
   List<HabitRecord> _habitRecords = [];
   Map<int, Habit> _habits = {};
   bool _isLoading = true;
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
   @override
   void initState() {
@@ -69,7 +70,12 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final updatedRecord = await _habitService.submitHabitRecord(habitId);
       if (updatedRecord != null) {
-        await _loadHabits(); // Reload habits to get updated state
+        setState(() {
+          final index = _habitRecords.indexWhere((record) => record.habitId == habitId);
+          if (index != -1) {
+            _habitRecords[index] = updatedRecord;
+          }
+        });
       }
     } catch (e) {
       print('Error toggling habit: $e');
@@ -124,11 +130,13 @@ class _HomeScreenState extends State<HomeScreen> {
   void _addNewHabit(String name) {
     if (name.isNotEmpty) {
       setState(() {
-        habits.add({
+        final newHabit = {
           'name': name,
           'days': List.generate(7, (_) => false),
           'icon': Icons.star, // Default icon
-        });
+        };
+        habits.add(newHabit);
+        _listKey.currentState?.insertItem(habits.length - 1);
       });
     }
   }
@@ -179,11 +187,18 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildHabitTracker(),
+                  Text(
+                    'Today',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildDailyHabits(),
                   const SizedBox(height: 24),
-                  _buildChallengesSection(),
+                  _buildStreaksSection(),
                   const SizedBox(height: 24),
-                  _buildPostsSection(),
+                  _buildSocialFeed(),
                 ],
               ),
             ),
@@ -198,335 +213,273 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHabitTracker() {
+  Widget _buildDailyHabits() {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return Card(
-      elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Today is ${DateFormat('EEEE').format(DateTime.now())}',
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                const SizedBox(width: 100),
-                ...List.generate(7, (index) {
-                  final date = DateTime.now().subtract(Duration(days: 6 - index));
-                  return Expanded(
-                    child: Center(
-                      child: Text(
-                        DateFormat('E').format(date)[0],
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
+    return AnimatedList(
+      key: _listKey,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      initialItemCount: _habitRecords.length,
+      itemBuilder: (context, index, animation) {
+        final record = _habitRecords[index];
+        final habit = _habits[record.habitId];
+        if (habit == null) return const SizedBox.shrink();
+
+        final today = DateTime.now();
+        final isCompletedToday = record.completedDates
+            .any((date) => DateUtils.isSameDay(date, today));
+        
+        // Calculate streak
+        int streak = 0;
+        DateTime checkDate = today;
+        while (record.completedDates.any((date) => 
+          DateUtils.isSameDay(date, checkDate))) {
+          streak++;
+          checkDate = checkDate.subtract(const Duration(days: 1));
+        }
+
+        return SizeTransition(
+          sizeFactor: animation,
+          child: Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            child: InkWell(
+              onTap: () => _toggleHabit(record.habitId),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (Widget child, Animation<double> animation) {
+                        return ScaleTransition(scale: animation, child: child);
+                      },
+                      child: Container(
+                        key: ValueKey<bool>(isCompletedToday),
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: isCompletedToday ? Colors.green[400] : Colors.grey[200],
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          isCompletedToday ? Icons.check : Icons.check_box_outline_blank,
+                          color: isCompletedToday ? Colors.white : Colors.grey[400],
                         ),
                       ),
                     ),
-                  );
-                }),
-              ],
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            habit.name,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          if (streak > 0) ...[
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(Icons.local_fire_department, 
+                                  color: Colors.orange[400],
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '$streak day streak!',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 8),
-            ..._habitRecords.map((record) => _buildHabitRow(record)),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildHabitRow(HabitRecord record) {
-    final habit = _habits[record.habitId];
-    print("Habit: ${habit?.toJson()}");
-    if (habit == null) return const SizedBox.shrink();
-
-    final today = DateTime.now();
-    final weekDays = List.generate(7, (index) => 
-      today.subtract(Duration(days: 6 - index)));
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 100,
-            child: Row(
-              children: [
-                Icon(Icons.check_circle_outline, color: Colors.green[400]),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Text(
-                    habit.name,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
+  Widget _buildStreaksSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Your Streaks',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
           ),
-          ...weekDays.map((date) {
-            final isCompleted = record.completedDates
-                .any((d) => DateUtils.isSameDay(d, date));
-            return Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  if (DateUtils.isSameDay(date, today)) {
-                    _toggleHabit(record.habitId);
-                  }
-                },
-                child: Container(
-                  margin: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.grey,
-                      width: 1,
+        ),
+        const SizedBox(height: 16),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: _habitRecords.map((record) {
+              final habit = _habits[record.habitId];
+              if (habit == null) return const SizedBox.shrink();
+
+              // Calculate streak
+              int streak = 0;
+              DateTime checkDate = DateTime.now();
+              while (record.completedDates.any((date) => 
+                DateUtils.isSameDay(date, checkDate))) {
+                streak++;
+                checkDate = checkDate.subtract(const Duration(days: 1));
+              }
+
+              if (streak == 0) return const SizedBox.shrink();
+
+              return Container(
+                margin: const EdgeInsets.only(right: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.orange[400]!, Colors.red[400]!],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '🔥',
+                      style: TextStyle(fontSize: 24),
                     ),
-                    color: isCompleted 
-                      ? Colors.green[400]
-                      : DateUtils.isSameDay(date, today) 
-                        ? Colors.white
-                        : Colors.grey[200],
-                  ),
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    child: isCompleted
-                        ? const Icon(
-                            Icons.check,
-                            color: Colors.white,
-                            size: 16,
-                          )
-                        : null,
-                  ),
+                    const SizedBox(height: 8),
+                    Text(
+                      streak.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      habit.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSocialFeed() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Friend Activity',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: posts.length,
+          itemBuilder: (context, index) {
+            final post = posts[index];
+            return Card(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: Colors.grey[200],
+                          child: Text(
+                            post['name']![0],
+                            style: TextStyle(
+                              color: Colors.grey[800],
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                post['name']!,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                post['date']!,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      post['message']!,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton.icon(
+                          icon: Icon(Icons.favorite_border, 
+                            color: Colors.grey[600],
+                            size: 18,
+                          ),
+                          label: Text(
+                            'Cheer',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          onPressed: () {
+                            // Implement cheer functionality
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             );
-          }).toList(),
-        ],
-      ),
-    );
-  }
-
-  // Add Habit Button
-  Widget _buildAddHabitButton() {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Add Habit',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Habit Name',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                const Text('#/week'),
-                const SizedBox(width: 16),
-                const Text('Alert'),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Text('Color: Stuff (Feature)'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green[400],
-                minimumSize: const Size(double.infinity, 48),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text('Add Habit'),
-            ),
-          ],
+          },
         ),
-      ),
-    );
-  }
-
-// Keep the existing methods for challenges and posts sections
-  Widget _buildChallengesSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Suggested Habits',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const Text(
-          'Make accountability a little easier ;D',
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 14,
-            height: 1.4,
-          ),
-        ),
-        const SizedBox(height: 16),
-        _buildChallengeCard(),
-        const SizedBox(height: 16),
       ],
-    );
-  }
-
-  Widget _buildChallengeCard() {
-    return Card(
-      elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: Colors.blue[100],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.water_drop,
-                    color: Colors.blue,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        'Stay Hydrated',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green[400],
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  'Join Habit',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-
-  // New Method to Build the Posts Section
-  Widget _buildPostsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'For You',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 16),
-        ...posts.map((post) => _buildPostCard(post)).toList(),
-      ],
-    );
-  }
-
-  // New Method to Build Individual Post Cards
-  Widget _buildPostCard(Map<String, String> post) {
-    return Card(
-      elevation: 1,
-      margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              post['name']!,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              post['message']!,
-              style: const TextStyle(fontSize: 14),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              post['date']!,
-              style: const TextStyle(
-                color: Colors.grey,
-                fontSize: 12,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
