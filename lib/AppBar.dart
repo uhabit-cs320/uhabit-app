@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'SettingsScreen.dart'; // Import the SettingsScreen
+// Import the SettingsScreen
 import 'NotificationScreen.dart'; // Import the NotificationScreen
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {

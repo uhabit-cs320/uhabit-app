@@ -8,7 +8,6 @@ import 'CalendarScreen.dart';
 import 'HomeScreen.dart';
 import 'FriendScreen.dart';
 import 'AppBar.dart';
-import 'SplashScreen.dart';
 import 'services/auth_service.dart';
 import 'services/mock_user_profile_service.dart';
 import 'services/firebase_auth_service.dart';
@@ -16,6 +15,7 @@ import 'services/firebase_auth_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  print(Firebase.app().options);
   await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
   
   final userService = MockUserProfileService();
@@ -44,8 +44,8 @@ class MyApp extends StatelessWidget {
           
           return snapshot.hasData 
             ? Screen() 
-            // : SignUpScreen(authService: authService); #TODO: uncomment this
-          : Screen();
+            : SignUpScreen(authService: authService); //TODO: uncomment this
+          //: Screen();
         },
 
       ),

@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "779684456745",
     "project_id": "cs320-d0a69",
-    "storage_bucket": "cs320-d0a69.appspot.com"
+    "storage_bucket": "cs320-d0a69.firebasestorage.app"
   },
   "client": [
     {
@@ -49,6 +49,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "779684456745-b7mebn6dkghstd7hfcc54c635s4gal9k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.umass.uhabit",
+            "certificate_hash": "4eed58d96a7b09b13e1949ffc98f9b916084e0f0"
+          }
+        },
         {
           "client_id": "779684456745-v45m10b6m776ev6ftvhnsv7ulkgq2jta.apps.googleusercontent.com",
           "client_type": 3

@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'user_profile_service.dart';
 
 abstract class AuthService {
   Stream<User?> get authStateChanges;

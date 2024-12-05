@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'SettingsScreen.dart';
 
 class NotificationScreen extends StatelessWidget {
   @override

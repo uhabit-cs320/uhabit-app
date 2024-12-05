@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:UHabit/models/user_profile.dart';
 import 'package:http/http.dart' as http;
 import 'user_profile_service.dart';
 

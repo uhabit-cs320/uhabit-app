@@ -2,7 +2,7 @@ import 'package:UHabit/services/health_service.dart';
 import 'package:UHabit/services/mock_user_profile_service.dart';
 import 'package:UHabit/services/user_profile_service.dart';
 import 'package:flutter/material.dart';
-
+import 'package:UHabit/models/user_profile.dart';
 class UserScreen extends StatelessWidget {
   final UserProfileService _userService = MockUserProfileService(); // Switch to ApiUserProfileService when ready
   final HealthService _healthService = HealthService();
@@ -46,17 +46,17 @@ class UserScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  userProfile.name,
+                  userProfile.name ?? '',
                   style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  userProfile.email,
+                  userProfile.email ?? '',
                   style: const TextStyle(fontSize: 16, color: Colors.grey),
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  userProfile.bio,
+                  userProfile.bio ?? '',
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
@@ -66,7 +66,7 @@ class UserScreen extends StatelessWidget {
                 ),
                 Expanded(
                   child: ListView(
-                    children: userProfile.habits.entries.map((entry) {
+                    children: userProfile.habits!.entries.map((entry) {
                       return ListTile(
                         title: Text(entry.key),
                         trailing: Text('${entry.value} days',
