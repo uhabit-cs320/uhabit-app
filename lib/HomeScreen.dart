@@ -33,8 +33,11 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoading = false;
       });
 
+      // Load public habits
+      print("Loading public habits");
       // Load habits
       final publicHabits = await _habitService.getPublicHabits();
+      print("Public habits: ${publicHabits.map((habit) => habit.toJson()).join('\n')}");
       setState(() {
         _habits = {for (var habit in publicHabits) habit.id: habit};
       }); 

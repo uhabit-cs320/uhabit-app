@@ -6,19 +6,19 @@ import 'package:UHabit/models/friend_request.dart';
 
 class MockFriendService implements FriendService {
   final List<Friend> _friends = [
-    Friend(id: '1', name: 'Trung Dang', email: 'test@gmail.com'),
-    Friend(id: '2', name: 'Joe Lebedev', email: 'test@gmail.com'),
-    Friend(id: '3', name: 'Zachary Tobey', email: 'test@gmail.com'),
-    Friend(id: '4', name: 'Shanyu Thibaut Juneja', email: 'test@gmail.com'),
-    Friend(id: '5', name: 'Mr. Treehari', email: 'test@gmail.com'),
+    Friend(id: 1, userId: 1, friendId: 2, status: FriendStatus.friend, createdDate: DateTime.now(), updatedDate: DateTime.now()),
+    Friend(id: 2, userId: 1, friendId: 3, status: FriendStatus.friend, createdDate: DateTime.now(), updatedDate: DateTime.now()),
+    Friend(id: 3, userId: 1, friendId: 4, status: FriendStatus.friend, createdDate: DateTime.now(), updatedDate: DateTime.now()),
+    Friend(id: 4, userId: 1, friendId: 5, status: FriendStatus.friend, createdDate: DateTime.now(), updatedDate: DateTime.now()),
+    Friend(id: 5, userId: 1, friendId: 6, status: FriendStatus.friend, createdDate: DateTime.now(), updatedDate: DateTime.now()),
   ];
 
   final List<FriendRequest> _friendRequests = [
-    FriendRequest(id: 1, senderId: 1, receiverId: 2, date: DateTime.now(), status: 'pending'),
-    FriendRequest(id: 2, senderId: 3, receiverId: 4, date: DateTime.now(), status: 'pending'),
+    FriendRequest(id: 1, senderId: 1, receiverId: 2, date: DateTime.now(), status: FriendRequestStatus.pending),
+    FriendRequest(id: 2, senderId: 3, receiverId: 4, date: DateTime.now(), status: FriendRequestStatus.pending),
   ];
 
-  final List<String> _suggestedFriends = [
+  final List<String> _suggestedFriends = [  
     'Alan Walker',
     'Aunt Angelina',
     'Uncle Brad',
@@ -51,5 +51,35 @@ class MockFriendService implements FriendService {
       bio: '',
       habits: {},
     )).toList();
+  }
+
+  @override
+  Future<void> acceptFriendRequest(String friendRequestId) async {
+    _friendRequests.removeWhere((request) => request.id == friendRequestId);
+  }
+
+  @override
+  Future<void> cancelFriendRequest(String friendRequestId) async {
+    _friendRequests.removeWhere((request) => request.id == friendRequestId);
+  }
+
+  @override
+  Future<void> rejectFriendRequest(String friendRequestId) async {
+    _friendRequests.removeWhere((request) => request.id == friendRequestId);
+  }
+
+  @override
+  Future<List<FriendRequest>> getIncomingFriendRequests() async {
+    return _friendRequests.where((request) => request.receiverId == 1).toList();
+  }
+
+  @override
+  Future<List<FriendRequest>> getOutgoingFriendRequests() async {
+    return _friendRequests.where((request) => request.senderId == 1).toList();
+  }
+
+  @override
+  Future<void> sendFriendRequest(String friendId) async {
+    _friendRequests.add(FriendRequest(id: _friendRequests.length + 1, senderId: 1, receiverId: int.parse(friendId), date: DateTime.now(), status: FriendRequestStatus.pending));
   }
 }

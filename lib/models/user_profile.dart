@@ -6,7 +6,7 @@ class UserProfile {
   final String? email;
   final String? photoUrl;
   final String? bio;
-  final Map<String, int>? habits;
+  Map<String, int>? habits;
 
   UserProfile({
     required this.id,

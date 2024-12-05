@@ -33,12 +33,7 @@ class FriendsListScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => FriendProfileScreen(
-                    friendData: {
-                      'name': friend.friendProfile?.name ?? 'Unknown Friend',
-                      'bio': friend.friendProfile?.bio ?? '',
-                      'habits': friend.friendProfile?.habits?.keys.toList() ?? [],
-                      'calendar': List.generate(30, (index) => false), // Default calendar
-                    },
+                    friendData: friend.friendProfile!,
                   ),
                 ),
               );

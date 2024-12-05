@@ -98,6 +98,7 @@ class ApiUtils {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        print('POST request response: ${response.body}');
         return fromJson(json.decode(response.body));
       } else {
         _handleErrorResponse(response);
