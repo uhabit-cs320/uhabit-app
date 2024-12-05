@@ -1,6 +1,3 @@
-Here's a comprehensive README for the UHabit project:
-
-```markdown
 # UHabit - Habit Tracking Made Social
 
 UHabit is a modern, social-focused habit tracking application built with Flutter. It helps users build and maintain habits while connecting with friends for mutual encouragement and accountability.
