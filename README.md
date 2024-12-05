@@ -19,21 +19,17 @@ UHabit is a modern, social-focused habit tracking application built with Flutter
 > Run our preflight check to verify your development environment:
 >
 >```bash
->./scripts/preflight.sh
+>./preflight.sh
 >```
 
 View our [installation guide](docs/INSTALLATION.md) for more detailed instructions.
 
-
-
 ## Project Structure
 
 ```
-lib/
+lib/                 # Main application code
 ├── models/          # Data models
 ├── services/        # API and business logic
-├── screens/         # UI screens
-└── widgets/         # Reusable widgets
 ```
 
 ## Core Features Implementation

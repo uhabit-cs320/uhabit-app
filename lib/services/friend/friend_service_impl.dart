@@ -4,7 +4,7 @@ import 'package:UHabit/models/user_profile.dart';
 import 'package:UHabit/services/api_utils.dart';
 import 'package:UHabit/services/friend/friend_service.dart';
 import 'package:UHabit/models/friend_request.dart';
-import 'package:UHabit/services/user_service.dart';
+import 'package:UHabit/services/profile/profile_service.dart';
 
 class FriendServiceImpl implements FriendService {
   @override
@@ -17,7 +17,7 @@ class FriendServiceImpl implements FriendService {
     );
     
     if (response != null) {
-      final userService = UserService();
+      final userService = ProfileService();
       await Future.wait(
         response.map((friend) async {
           friend.friendProfile = await userService.getPublicProfile(friend.friendId);
@@ -65,7 +65,7 @@ class FriendServiceImpl implements FriendService {
     );
     
     if (response != null) {
-      final userService = UserService();
+      final userService = ProfileService();
       // Fetch public profiles for each sender
       await Future.wait(
         response.map((request) async {
@@ -90,7 +90,7 @@ class FriendServiceImpl implements FriendService {
 
 
     if (response != null) {
-      final userService = UserService();
+      final userService = ProfileService();
       await Future.wait(
         response.map((request) async {
           request.receiverProfile = await userService.getPublicProfile(request.receiverId);

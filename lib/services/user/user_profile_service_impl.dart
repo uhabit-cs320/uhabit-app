@@ -3,11 +3,11 @@ import 'package:UHabit/models/user_profile.dart';
 import 'package:http/http.dart' as http;
 import 'user_profile_service.dart';
 
-class ApiUserProfileService implements UserProfileService {
+class UserProfileServiceImpl implements UserProfileService {
   final String baseUrl = 'https://api.uhabit.com'; // Replace with your actual API URL
   final String? authToken;
 
-  ApiUserProfileService({this.authToken});
+  UserProfileServiceImpl({this.authToken});
 
   @override
   Future<UserProfile?> getCurrentUserProfile() async {

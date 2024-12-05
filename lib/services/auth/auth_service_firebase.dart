@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'auth_service.dart';
-import 'user_profile_service.dart';
+import '../user/user_profile_service.dart';
 import 'package:UHabit/models/user_profile.dart';
 
 class FirebaseAuthService implements AuthService {

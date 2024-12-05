@@ -1,10 +1,10 @@
 import 'package:UHabit/services/health_service.dart';
-import 'package:UHabit/services/mock_user_profile_service.dart';
-import 'package:UHabit/services/user_profile_service.dart';
+import 'package:UHabit/services/user/user_profile_service_mock.dart';
+import 'package:UHabit/services/user/user_profile_service.dart';
 import 'package:flutter/material.dart';
 import 'package:UHabit/models/user_profile.dart';
 class UserScreen extends StatelessWidget {
-  final UserProfileService _userService = MockUserProfileService();
+  final UserProfileService _userService = UserProfileServiceMock();
   
   @override
   Widget build(BuildContext context) {

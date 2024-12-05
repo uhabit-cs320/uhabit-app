@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'user_profile_service.dart';
 import 'package:UHabit/models/user_profile.dart';
 
-class MockUserProfileService implements UserProfileService {
+class UserProfileServiceMock implements UserProfileService {
   UserProfile? _currentUser;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 

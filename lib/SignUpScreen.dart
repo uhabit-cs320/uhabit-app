@@ -1,7 +1,7 @@
 // ignore_for_file: use_super_parameters
 
 import 'package:UHabit/EmailSignUpScreen.dart';
-import 'package:UHabit/services/auth_service.dart';
+import 'package:UHabit/services/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';

@@ -1,6 +1,9 @@
 import 'package:UHabit/models/habit.dart';
 import 'package:UHabit/models/habit_record.dart';
-import 'package:UHabit/services/habit_service.dart';
+import 'package:UHabit/services/habit/habit_service.dart';
+import 'package:UHabit/services/habit/habit_service_impl.dart';
+import 'package:UHabit/services/habit/habit_record_service.dart';
+import 'package:UHabit/services/habit/habit_record_service_impl.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -12,7 +15,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
-  final HabitService _habitService = HabitService();
+  final HabitService _habitService = HabitServiceImpl ();
+  final HabitRecordService _habitRecordService = HabitRecordServiceImpl();
+
   List<HabitRecord> _habitRecords = [];
   Map<int, Habit> _habits = {};
   bool _isLoading = true;
@@ -28,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     try {
       setState(() => _isLoading = true);
       print("Loading habits");
-      final habits = await _habitService.getActiveHabits();
+      final habits = await _habitRecordService.getActiveHabits();
       setState(() {
         _habitRecords = habits;
         _isLoading = false;

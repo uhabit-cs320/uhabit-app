@@ -1,8 +1,11 @@
 import 'package:UHabit/models/user_profile.dart';
+import 'package:UHabit/services/habit/habit_record_service.dart';
+import 'package:UHabit/services/habit/habit_record_service_impl.dart';
+import 'package:UHabit/services/habit/habit_service.dart';
 import 'package:flutter/material.dart';
 import 'package:UHabit/models/habit.dart';
 import 'package:UHabit/models/habit_record.dart';
-import 'package:UHabit/services/habit_service.dart';
+import 'package:UHabit/services/habit/habit_service_impl.dart';
 import 'AppBar.dart';
 import 'package:intl/intl.dart';
 
@@ -16,7 +19,8 @@ class FriendProfileScreen extends StatefulWidget {
 }
 
 class _FriendProfileScreenState extends State<FriendProfileScreen> {
-  final HabitService _habitService = HabitService();
+  final HabitService _habitService = HabitServiceImpl();
+  final HabitRecordService _habitRecordService = HabitRecordServiceImpl();
   Map<int, bool> followStatus = {};
   List<HabitRecord> _activeHabits = [];
   List<Habit> _friendHabits = [];
@@ -30,7 +34,7 @@ class _FriendProfileScreenState extends State<FriendProfileScreen> {
 
   Future<void> _loadHabits() async {
     try {
-      final activeHabits = await _habitService.getActiveHabits();
+      final activeHabits = await _habitRecordService.getActiveHabits();
       
       // Get the friend's habits using their ID
       final publicHabits = await _habitService.getPublicHabits();

@@ -8,9 +8,9 @@ import 'CalendarScreen.dart';
 import 'HomeScreen.dart';
 import 'FriendScreen.dart';
 import 'AppBar.dart';
-import 'services/auth_service.dart';
-import 'services/mock_user_profile_service.dart';
-import 'services/firebase_auth_service.dart';
+import 'services/auth/auth_service.dart';
+import 'services/user/user_profile_service_mock.dart';
+import 'services/auth/auth_service_firebase.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +18,7 @@ void main() async {
   print(Firebase.app().options);
   await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
   
-  final userService = MockUserProfileService();
+  final userService = UserProfileServiceMock();
   final authService = FirebaseAuthService(userService);
 
   runApp(MyApp(authService: authService));  // Changed this line to use MyApp
