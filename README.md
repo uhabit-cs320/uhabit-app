@@ -27,7 +27,7 @@ UHabit is a modern, social-focused habit tracking application built with Flutter
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/UHabit.git
+git clone https://github.com/uhabit-cs320/uhabit-app
 ```
 
 2. Navigate to the project directory:
@@ -57,55 +57,6 @@ lib/
 
 ## Core Features Implementation
 
-### Habit Tracking
-
-The app uses an animated list to display daily habits with smooth transitions:
-
-```dart:lib/HomeScreen.dart
-startLine: 216
-endLine: 315
-```
-
-### Streak System
-
-Streaks are calculated and displayed with engaging visuals:
-
-```dart:lib/HomeScreen.dart
-startLine: 317
-endLine: 389
-```
-
-### Social Feed
-
-The social feed shows friends' activities and achievements:
-
-```dart:lib/HomeScreen.dart
-startLine: 391
-endLine: 467
-```
-
-## API Integration
-
-The app communicates with a backend server through the HabitService:
-
-```dart:lib/services/habit_service.dart
-startLine: 5
-endLine: 40
-```
-
-## Models
-
-### Habit Model
-```dart:lib/models/habit.dart
-startLine: 1
-endLine: 29
-```
-
-### HabitRecord Model
-```dart:lib/models/habit_record.dart
-startLine: 1
-endLine: 41
-```
 
 ## Usage
 
@@ -136,23 +87,3 @@ endLine: 41
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- Flutter team for the amazing framework
-- [List any other libraries or resources used]
-
-## Screenshots
-
-[Add screenshots of different screens here]
-
-## Contact
-
-Your Name - [@yourtwitter](https://twitter.com/yourtwitter)
-Project Link: [https://github.com/yourusername/UHabit](https://github.com/yourusername/UHabit)
-```
-
-This README provides comprehensive documentation for the UHabit project, including setup instructions, feature explanations, and code references. You should add actual screenshots, update the social media links, and modify any placeholder content before publishing.
