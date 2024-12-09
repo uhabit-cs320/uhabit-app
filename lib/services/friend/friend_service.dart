@@ -7,6 +7,7 @@ abstract class FriendService {
   Future<void> removeFriend(String friendId);
   Future<bool> isFriend(String friendId);
   Future<List<UserProfile>> getSuggestedFriends();
+  Future<List<UserProfile>> searchFriends(String query);
   
   // New methods for friend requests
   Future<List<FriendRequest>> getIncomingFriendRequests();

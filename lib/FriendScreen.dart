@@ -19,11 +19,20 @@ class _FriendScreenState extends State<FriendScreen> {
   List<FriendRequest> friendRequests = [];
   List<FriendRequest> outgoingFriendRequests = [];
   bool isLoading = true;
+  final TextEditingController _searchController = TextEditingController();
+  List<UserProfile> searchResults = [];
+  bool isSearching = false;
 
   @override
   void initState() {
     super.initState();
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -46,6 +55,28 @@ class _FriendScreenState extends State<FriendScreen> {
     } catch (e) {
       print('Error loading friends data: $e');
       setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> _handleSearch(String query) async {
+    if (query.isEmpty) {
+      setState(() {
+        isSearching = false;
+        searchResults = [];
+      });
+      return;
+    }
+
+    setState(() => isSearching = true);
+    try {
+      final results = await _friendService.searchFriends(query);
+      setState(() {
+        searchResults = results;
+        isSearching = false;
+      });
+    } catch (e) {
+      print('Error searching friends: $e');
+      setState(() => isSearching = false);
     }
   }
 
@@ -151,6 +182,67 @@ class _FriendScreenState extends State<FriendScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Add search bar at the top
+            TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search for users...',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          _handleSearch('');
+                        },
+                      )
+                    : null,
+              ),
+              onChanged: _handleSearch,
+            ),
+            SizedBox(height: 10),
+
+            // Show search results if searching
+            if (isSearching)
+              Center(child: CircularProgressIndicator())
+            else if (searchResults.isNotEmpty)
+              ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: searchResults.length,
+                itemBuilder: (context, index) {
+                  final user = searchResults[index];
+                  return ListTile(
+                    leading: CircleAvatar(
+                      backgroundImage: user.photoUrl != null
+                          ? NetworkImage(user.photoUrl!)
+                          : null,
+                    ),
+                    title: Text(user.name ?? 'Unknown'),
+                    trailing: ElevatedButton(
+                      onPressed: () async {
+                        await _friendService.sendFriendRequest(user.id);
+                        showSnackbar(
+                          context,
+                          'Friend request sent to ${user.name}',
+                          Colors.tealAccent,
+                        );
+                        _searchController.clear();
+                        _handleSearch('');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.lightGreenAccent,
+                      ),
+                      child: Text('Add Friend',
+                          style: TextStyle(color: Colors.black)),
+                    ),
+                  );
+                },
+              ),
+
             // Navigate to My Friends list
             ListTile(
               title: Text(

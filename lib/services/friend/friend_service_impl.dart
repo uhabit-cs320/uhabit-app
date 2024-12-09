@@ -56,6 +56,17 @@ class FriendServiceImpl implements FriendService {
   }
 
   @override
+  Future<List<UserProfile>> searchFriends(String query) async {
+    final response = await ApiUtils.get<List<UserProfile>>(
+      '/api/v1/friends/search?query=$query',
+      (json) => (json as List)
+          .map((item) => UserProfile.fromJson(item))
+          .toList(),
+    );
+    return response ?? [];
+  }
+
+  @override
   Future<List<FriendRequest>> getIncomingFriendRequests() async {
     final response = await ApiUtils.get<List<FriendRequest>>(
       '/api/v1/friend-requests/incoming',
