@@ -1,4 +1,4 @@
-package com.example.frontend
+package edu.umass.uhabit
 
 import io.flutter.embedding.android.FlutterActivity
 
